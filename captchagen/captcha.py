@@ -30,12 +30,14 @@ def generate_image(chars: str) -> Image:
     # im = im.filter(SMOOTH)
     return im
 
-def generate_captcha():
-    captcha = ''.join(random.choices(vocab, k=4))
+def generate_captcha(captcha = None):
+    if captcha is None:
+        captcha = ''.join(random.choices(vocab, k=4))
     image = generate_image(captcha)
     return image, captcha
 
-def generate_simple_captcha():
-    captcha = ''.join(random.choices(vocab, k=4))
+def generate_simple_captcha(captcha = None):
+    if captcha is None:
+        captcha = ''.join(random.choices(vocab, k=4))
     image = ImageCaptcha(width=112,height=35,font_sizes=[36]).generate_image(captcha)
     return image, captcha
