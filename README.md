@@ -14,4 +14,5 @@ A simple captcha hacker using CNN and OpenCV
 ![Example](captcha.ipynb)
 
 ## License
-MIT
+All code and *.pth files are under MIT License. TTF files in `fonts/` are copy from [kiwi0fruit/open-fonts](https://github.com/kiwi0fruit/open-fonts) which are under their own License.
+
