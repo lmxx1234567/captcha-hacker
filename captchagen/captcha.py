@@ -20,7 +20,7 @@ def generate_image(chars: str) -> Image:
 
     :param chars: text to be generated.
     """
-    image = ImageCaptcha(width=112,height=35,fonts=fonts)
+    image = ImageCaptcha(width=112,height=35,fonts=fonts,font_sizes=[36])
     # background = random_color(238, 255)
     color = random_color(1, 200, 255)
     im = image.create_captcha_image(chars, color, (255, 255, 255) )

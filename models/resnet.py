@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from . import vocab
+import string
 
 
 class ResidualBlock(nn.Module):
@@ -51,6 +52,11 @@ class ResNetCaptchaOCR(nn.Module):
         dropout_prob=0.5,
     ):
         super(ResNetCaptchaOCR, self).__init__()
+        self.num_classes = num_classes
+        if num_classes == 36:
+            self.vocab = string.ascii_lowercase + string.digits
+        else:
+            self.vocab = vocab
         self.in_channels = 32
 
         # Initial convolutional layer
@@ -75,7 +81,7 @@ class ResNetCaptchaOCR(nn.Module):
         # Fully connected layers
         self.flatten = nn.Flatten()
         self.fc1 = nn.Linear(
-            32 * 2**(len(layers) - 1), 256
+            32 * 2 ** (len(layers) - 1), 256
         )  # Output of the last residual layer
         self.dropout = nn.Dropout(p=dropout_prob)
         self.fc2 = nn.Linear(256, num_characters * num_classes)
@@ -116,24 +122,24 @@ class ResNetCaptchaOCR(nn.Module):
         x = F.relu(self.fc1(x))
         x = self.dropout(x)
         x = self.fc2(x)
-        x = x.view(-1, 4, 62)
+        x = x.view(-1, 4, self.num_classes)
         return x
 
     def predict(self, x):
         with torch.no_grad():
-            return self.forward(x).view(-1, 4, 62).argmax(dim=-1)
+            return self.forward(x).view(-1, 4, self.num_classes).argmax(dim=-1)
 
     def predict_all_possible(self, x):
         with torch.no_grad():
             # Get each character's probabilities
-            probs = self.forward(x).view(-1, 4, 62).softmax(dim=-1)
+            probs = self.forward(x).view(-1, 4, self.num_classes).softmax(dim=-1)
 
             # Generate all combinations of indices for each character position
             all_indices = torch.cartesian_prod(
-                torch.arange(62),  # For first character
-                torch.arange(62),  # For second character
-                torch.arange(62),  # For third character
-                torch.arange(62),  # For fourth character
+                torch.arange(self.num_classes),  # For first character
+                torch.arange(self.num_classes),  # For second character
+                torch.arange(self.num_classes),  # For third character
+                torch.arange(self.num_classes),  # For fourth character
             ).to(
                 probs.device
             )  # Ensure this tensor is on the same device as probs
@@ -150,7 +156,7 @@ class ResNetCaptchaOCR(nn.Module):
             # Return the top 10 word list with probabilities
             for i in range(10):
                 word = "".join(
-                    [vocab[idx.item()] for idx in all_indices[sorted_idx[i]]]
+                    [self.vocab[idx.item()] for idx in all_indices[sorted_idx[i]]]
                 )
                 words.append((word, sorted_probs[i].item()))
 
