@@ -20,13 +20,14 @@ def generate_image(chars: str) -> Image:
 
     :param chars: text to be generated.
     """
-    image = ImageCaptcha(width=112,height=35,fonts=fonts,font_sizes=[36])
+    image = ImageCaptcha(width=112,height=35,fonts=fonts,font_sizes=[24])
     # background = random_color(238, 255)
     color = random_color(1, 200, 255)
     im = image.create_captcha_image(chars, color, (255, 255, 255) )
     image.create_noise_dots(im, color,1,30)
-    create_noise_line(im, color)
-    create_noise_line(im, color)
+    line_color = random_color(1, 200, 255)
+    create_noise_line(im, line_color)
+    create_noise_line(im, line_color)
     # im = im.filter(SMOOTH)
     return im
 
